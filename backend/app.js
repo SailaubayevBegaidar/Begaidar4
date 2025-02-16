@@ -1,34 +1,31 @@
 import express from 'express';
 
-import taskRouter from './routes/taskRoutes.js';
-import userRouter from './routes/userRoutes.js';
+import taskRoutes from './routes/taskRoutes.js';
+import userRoutes from './routes/userRoutes.js';
 import mongoose from 'mongoose';
 import dotenv from "dotenv";
 
 dotenv.config();
 
-const app = express();
+const appServer = express();
 
-app.use(express.json());
-app.use('/users',userRouter);
-app.use('/tasks',taskRouter);
+appServer.use(express.json());
+appServer.use('/users', userRoutes);
+appServer.use('/tasks', taskRoutes);
 
+const serverPort = process.env.PORT || 5000;
 
-const PORT = process.env.PORT || 5000;
-
- const startApp = async()=>{
-    try{
+const initializeServer = async() => {
+    try {
         await mongoose.connect(process.env.MONGO_URL);
-        console.log("mongo is connected");
-        app.listen(PORT,()=>{
-            console.log(`server started on port ${PORT}`);
+        console.log("MongoDB подключен");
+        appServer.listen(serverPort, () => {
+            console.log(`Сервер запущен на порту ${serverPort}`);
         })
-    
-    }catch(e){
-        console.log(e);
+    } catch(error) {
+        console.log(error);
     }
-    
 }
 
-startApp();
+initializeServer();
 

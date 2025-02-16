@@ -1,104 +1,92 @@
-# web4
+# Менеджер Задач с JWT Аутентификацией
 
-## Description
+## Обзор
 
-**web4** is a project developed using JavaScript that utilizes JWT tokens for authentication. It provides a series of endpoints for task management and user authentication.
+Это веб-приложение, разработанное на JavaScript, использующее JWT токены для безопасной аутентификации. Проект предоставляет API для управления задачами и аутентификации пользователей.
 
-## Features
+## Основные возможности
 
-- User registration and login with JWT authentication
-- Task creation, retrieval, update, and deletion
-- Secure endpoints with middleware authentication
+- Регистрация и вход пользователей с JWT аутентификацией
+- Управление задачами (создание, просмотр, обновление, удаление)
+- Защищенные эндпоинты с middleware аутентификацией
 
-## Installation
+## Установка
 
-To install and run this project locally, follow these steps:
+Для локальной установки выполните следующие шаги:
 
-1. Clone the repository:
-
+1. Клонируйте репозиторий:
    ```bash
-   git clone https://github.com/Nurkens/web4.git
+   git clone https://github.com/SailaubayevBegaidar/Begaidar4.git
    ```
 
-2. Navigate to the project directory:
-
+2. Перейдите в директорию проекта:
    ```bash
-   cd web4
+   cd Begaidar4
    ```
 
-3. Install dependencies:
-
+3. Установите зависимости:
    ```bash
    npm install
    ```
 
-4. Run the project:
+4. Запустите проект:
    ```bash
    npm start
    ```
 
-_(Add any other necessary installation steps or prerequisites.)_
+## API Endpoints
 
-## Usage
+### Пользовательские эндпоинты
 
-To use this project, you can interact with the following endpoints:
-
-### User Endpoints
-
-- **Register**: `POST /register`
-
+- **Регистрация**: `POST /users/register`
   ```json
   {
-    "username": "yourusername",
-    "password": "yourpassword"
+    "userName": "ваше_имя",
+    "userEmail": "ваша_почта",
+    "userPassword": "ваш_пароль"
   }
   ```
 
-- **Login**: `POST /login`
+- **Вход**: `POST /users/login`
   ```json
   {
-    "username": "yourusername",
-    "password": "yourpassword"
+    "email": "ваш_email",
+    "password": "ваш_пароль"
   }
   ```
 
-### Task Endpoints (Protected by JWT Authentication)
+### Эндпоинты задач (требуют JWT аутентификации)
 
-- **Create Task**: `POST /create`
-
-  - Headers: `Authorization: Bearer <your_jwt_token>`
+- **Создание задачи**: `POST /tasks/create`
+  - Headers: `Authorization: Bearer <jwt_token>`
   - Body:
     ```json
     {
-      "title": "Task Title",
-      "description": "Task Description"
+      "taskName": "Название задачи",
+      "taskContent": "Описание задачи"
     }
     ```
 
-- **Get All Tasks**: `GET /`
+- **Получение всех задач**: `GET /tasks`
+  - Headers: `Authorization: Bearer <jwt_token>`
 
-  - Headers: `Authorization: Bearer <your_jwt_token>`
+- **Получение задачи по ID**: `GET /tasks/:id`
+  - Headers: `Authorization: Bearer <jwt_token>`
 
-- **Get Task by ID**: `GET /:id`
-
-  - Headers: `Authorization: Bearer <your_jwt_token>`
-
-- **Update Task**: `PUT /update/:id`
-
-  - Headers: `Authorization: Bearer <your_jwt_token>`
+- **Обновление задачи**: `PUT /tasks/update/:id`
+  - Headers: `Authorization: Bearer <jwt_token>`
   - Body:
     ```json
     {
-      "title": "Updated Task Title",
-      "description": "Updated Task Description"
+      "title": "Обновленное название",
+      "description": "Обновленное описание"
     }
     ```
 
-- **Delete Task**: `DELETE /delete/:id`
-  - Headers: `Authorization: Bearer <your_jwt_token>`
+- **Удаление задачи**: `DELETE /tasks/delete/:id`
+  - Headers: `Authorization: Bearer <jwt_token>`
 
-## Contact
+## Контакты
 
-If you have any questions or feedback, feel free to reach out to me:
-
-- GitHub: [Nurkens](https://github.com/Nurkens)
+По вопросам и предложениям:
+- GitHub: [SailaubayevBegaidar](https://github.com/SailaubayevBegaidar)

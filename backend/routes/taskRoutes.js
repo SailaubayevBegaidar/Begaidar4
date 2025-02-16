@@ -1,15 +1,13 @@
 import taskController from "../controllers/taskController.js";
-import authMiddleware from "../middleware/authMiddleware.js";
+import authGuard from "../middleware/authGuard.js";
 import Router from "express";
 
-const taskRouter = Router();
+const taskRoutes = Router();
 
+taskRoutes.post("/create", authGuard, taskController.createTask);
+taskRoutes.get("/", authGuard, taskController.getAllTasks);
+taskRoutes.get("/:id", authGuard, taskController.getTaskById);
+taskRoutes.put("/update/:id", authGuard, taskController.updateTask);
+taskRoutes.delete("/delete/:id", authGuard, taskController.deleteTask);
 
-
-taskRouter.post("/create",authMiddleware ,taskController.createTask);
-taskRouter.get("/", authMiddleware,taskController.getTasks);
-taskRouter.get("/:id",authMiddleware, taskController.getOne);
-taskRouter.put("/update/:id",authMiddleware, taskController.updateTask);
-taskRouter.delete("/delete/:id", authMiddleware, taskController.deleteTask);
-
-export default taskRouter;
+export default taskRoutes;

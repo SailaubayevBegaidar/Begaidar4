@@ -1,90 +1,103 @@
-import User from '../models/User.js';
+import UserModel from '../models/UserModel.js';
 import bcrypt from 'bcrypt';
-import TokenUtils from '../utils/TokenUtils.js';
+import JwtService from '../utils/JwtService.js';
 import validator from 'validator';
 
-class userController {
+class UserController {
     async register(req, res) {
         try {
-            const { name, email, password } = req.body;
+            const { userName, userEmail, userPassword } = req.body;
 
-            
-            if (!name || !email || !password) {
-                return res.status(400).json({ msg: "Please fill in all fields" });
+            if (!userName || !userEmail || !userPassword) {
+                return res.status(400).json({ message: "Заполните все поля" });
             }
-            if (!validator.isEmail(email)) {
-                return res.status(400).json({ msg: "Invalid email format" });
+            if (!validator.isEmail(userEmail)) {
+                return res.status(400).json({ message: "Неверный формат email" });
             }
-            if (password.length < 6) {
-                return res.status(400).json({ msg: "Password must be at least 6 characters long" });
+            if (userPassword.length < 6) {
+                return res.status(400).json({ message: "Пароль должен быть не менее 6 символов" });
             }
 
-            
-            const userExists = await User.findOne({ email });
+            const userExists = await UserModel.findOne({ userEmail });
             if (userExists) {
-                return res.status(400).json({ msg: "User with this email already exists" });
+                return res.status(400).json({ message: "Пользователь с таким email уже существует" });
             }
 
-            
-            const passwordHash = await bcrypt.hash(password, 4);
+            const passwordHash = await bcrypt.hash(userPassword, 4);
 
-            const newUser = new User({ name, email, password: passwordHash });
+            const newUser = new UserModel({ 
+                userName, 
+                userEmail, 
+                userPassword: passwordHash 
+            });
             await newUser.save();
 
-            const accessToken = TokenUtils.createAccessToken({ id: newUser._id });
-            const refreshToken = TokenUtils.createRefreshToken({ id: newUser._id });
+            const accessToken = JwtService.generateAccessToken({ id: newUser._id });
+            const refreshToken = JwtService.generateRefreshToken({ id: newUser._id });
 
             res.cookie("refreshToken", refreshToken, {
                 httpOnly: true,
-                
                 sameSite: "strict",
                 maxAge: 7 * 24 * 60 * 60 * 1000,
             });
 
-            return res.json({ accessToken, user: { id: newUser._id, name, email } });
-        } catch (e) {
-            console.error(e);
-            return res.status(500).json({ msg: "Internal Server Error" });
+            return res.json({ 
+                accessToken, 
+                user: { 
+                    id: newUser._id, 
+                    userName, 
+                    userEmail 
+                } 
+            });
+        } catch (error) {
+            console.error(error);
+            return res.status(500).json({ message: "Внутренняя ошибка сервера" });
         }
     }
 
     async login(req, res) {
         try {
-            const { email, password } = req.body;
+            const { userEmail, userPassword } = req.body;
 
-            if (!email || !password) {
-                return res.status(400).json({ msg: "Please fill in all fields" });
+            if (!userEmail || !userPassword) {
+                return res.status(400).json({ message: "Заполните все поля" });
             }
-            if (!validator.isEmail(email)) {
-                return res.status(400).json({ msg: "Invalid email format" });
+            if (!validator.isEmail(userEmail)) {
+                return res.status(400).json({ message: "Неверный формат email" });
             }
 
-            const user = await User.findOne({ email });
+            const user = await UserModel.findOne({ userEmail });
             if (!user) {
-                return res.status(400).json({ msg: "User does not exist" });
+                return res.status(400).json({ message: "Пользователь не существует" });
             }
 
-            const isMatching = await bcrypt.compare(password, user.password);
+            const isMatching = await bcrypt.compare(userPassword, user.userPassword);
             if (!isMatching) {
-                return res.status(400).json({ msg: "Invalid credentials" });
+                return res.status(400).json({ message: "Неверный пароль" });
             }
 
-            const accessToken = TokenUtils.createAccessToken({ id: user._id });
-            const refreshToken = TokenUtils.createRefreshToken({ id: user._id });
+            const accessToken = JwtService.generateAccessToken({ id: user._id });
+            const refreshToken = JwtService.generateRefreshToken({ id: user._id });
 
             res.cookie("refreshToken", refreshToken, {
                 httpOnly: true,
-             
                 sameSite: "strict",
                 maxAge: 7 * 24 * 60 * 60 * 1000,
             });
 
-            return res.json({ accessToken, user: { id: user._id, name: user.name, email } });
-        } catch (e) {
-            console.error(e);
-            return res.status(500).json({ msg: "Internal Server Error" });
+            return res.json({ 
+                accessToken, 
+                user: { 
+                    id: user._id, 
+                    userName: user.userName, 
+                    userEmail: user.userEmail 
+                } 
+            });
+        } catch (error) {
+            console.error(error);
+            return res.status(500).json({ message: "Внутренняя ошибка сервера" });
         }
     }
 }
 
-export default new userController();
+export default new UserController();

@@ -1,78 +1,87 @@
-import Tasks from "../models/Tasks.js";
+import TaskModel from "../models/TaskModel.js";
 
-class taskController{
-    async getTasks(req,res){
-        try{
-            const tasks = await Tasks.find();
-            return res.json(tasks);
-            
-        }catch(e){
-            console.log(e);
+class TaskController {
+    async getAllTasks(req, res) {
+        try {
+            const tasksList = await TaskModel.find();
+            return res.json(tasksList);
+        } catch (error) {
+            console.log(error);
+            return res.status(500).json({ message: "Внутренняя ошибка сервера" });
         }
     }
-    async getOne(req,res){
-        try{
-            const task = await Tasks.findOne({_id:req.params.id});
-            if(!task){
-                return res.status(400).json({message:"Task not found"});
+
+    async getTaskById(req, res) {
+        try {
+            const taskItem = await TaskModel.findOne({_id: req.params.id});
+            if(!taskItem) {
+                return res.status(400).json({message: "Задача не найдена"});
             }
-            return res.json(task);
-        }catch(e){
-            console.log(e);
+            return res.json(taskItem);
+        } catch (error) {
+            console.log(error);
+            return res.status(500).json({ message: "Внутренняя ошибка сервера" });
         }
-    
     }
+
     async createTask(req, res) {
         try {
-            const { title, description } = req.body;
-            if (!title || !description) {
-                return res.status(400).json({ message: "Please fill all fields" });
+            const { taskName, taskContent } = req.body;
+            if (!taskName || !taskContent) {
+                return res.status(400).json({ message: "Заполните все поля" });
             }   
 
-            const userId = req.user?.id; 
-            if (!userId) {
-                return res.status(401).json({ message: "User not authorized" });
+            const authorId = req.user?.id;
+            if (!authorId) {
+                return res.status(401).json({ message: "Пользователь не авторизован" });
             }
 
-            const task = new Tasks({ title, description, userId });
-            await task.save();
-            return res.status(201).json({ message: "Task created", task });
-        } catch (e) {
-            console.log(e);
-            return res.status(500).json({ message: "Internal server error" });
+            const newTask = new TaskModel({ taskName, taskContent, authorId });
+            await newTask.save();
+            return res.status(201).json({ message: "Задача создана", newTask });
+        } catch (error) {
+            console.log(error);
+            return res.status(500).json({ message: "Внутренняя ошибка сервера" });
         }
     }
 
-    async updateTask(req,res){
-        try{
-            const {title,description} = req.body;
-            if(!title || !description){
-                return res.status(400).json({message:"please fill all "});
+    async updateTask(req, res) {
+        try {
+            const { taskName, taskContent } = req.body;
+            if (!taskName || !taskContent) {
+                return res.status(400).json({ message: "Заполните все поля" });
             }   
 
-            const task = await Tasks.findOne({_id:req.params.id});
-            if(!task){
-                return res.status(400).json({message:"Task not found"});
+            const taskItem = await TaskModel.findOne({_id: req.params.id});
+            if (!taskItem) {
+                return res.status(400).json({ message: "Задача не найдена" });
             }
-            const updatedTask = await Tasks.findByIdAndUpdate(req.params.id,{title,description},{new:true});
-            return res.json({message:"Task updated",updatedTask});            
-        }catch(e){
-            console.log(e);
+
+            const updatedTask = await TaskModel.findByIdAndUpdate(
+                req.params.id,
+                { taskName, taskContent },
+                { new: true }
+            );
+            return res.json({ message: "Задача обновлена", updatedTask });            
+        } catch (error) {
+            console.log(error);
+            return res.status(500).json({ message: "Внутренняя ошибка сервера" });
         }
     }
-    async deleteTask(req,res){
-        try{
-            const task = await Tasks.findOne({_id:req.params.id});
-            if(!task){
-                return res.status(400).json({message:"Task not found"});
+
+    async deleteTask(req, res) {
+        try {
+            const taskItem = await TaskModel.findOne({_id: req.params.id});
+            if (!taskItem) {
+                return res.status(400).json({ message: "Задача не найдена" });
             }  
-            const deletedTask = await Tasks.findByIdAndDelete(req.params.id);
-            return res.json({message:"Task deleted",deletedTask});
-        }catch(e){
-            console.log(e);
+            const deletedTask = await TaskModel.findByIdAndDelete(req.params.id);
+            return res.json({ message: "Задача удалена", deletedTask });
+        } catch (error) {
+            console.log(error);
+            return res.status(500).json({ message: "Внутренняя ошибка сервера" });
         }
     }
-
 }
 
-export default new taskController();
+export default new TaskController();
